@@ -1,0 +1,29 @@
+
+ListView的优化方案
+
+1、如果自定义适配器，那么在getView方法中要考虑方法传进来的参数contentView是否为null，
+如果为null就创建contentView并返回，如果不为null则直接使用。在这个方法中尽可能少创建view，。
+
+2、给contentView设置tag（setTag（）），传入一个viewHolder对象，用于缓存要显示的数据，可以达到图像数据异步加载的效果，避免每次都需要findViewById。
+
+3、如果listview需要显示的item很多，就要考虑分页加载。比如一共要显示100条或者更多的时候，我们可以考虑先加载20条
+  ，等用户拉到列表底部的时候再去加载接下来的20条。
+
+数据集改变后，如何更新ListView
+使用该ListView的adapter的notifyDataSetChanged()方法。该方法会使ListView重新绘制。
+
+如何实现分页加载
+① 设置ListView的滚动监听器：setOnScrollListener(newOnScrollListener{….})
+
+在监听器中有两个方法： 滚动状态发生变化的方法(onScrollStateChanged)和listView被滚动时调用的方法(onScroll)
+
+② 在滚动状态发生改变的方法中，有三种状态：
+
+手指按下移动的状态：                     SCROLL_STATE_TOUCH_SCROLL:// 触摸滑动
+惯性滚动（滑翔（flgin）状态）：     SCROLL_STATE_FLING:// 滑翔
+静止状态：                                SCROLL_STATE_IDLE:// 静止
+
+ 对不同的状态进行处理：
+
+分批加载数据，只关心静止状态：关心最后一个可见的条目，如果最后一个可见条目就是数据适配器（集合）里的最后一个，
+此时可加载更多的数据。在每次加载的时候，计算出滚动的数量，当滚动的数量大于等于总数量的时候，可以提示用户无更多数据了。
